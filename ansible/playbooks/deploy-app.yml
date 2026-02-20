@@ -1,0 +1,138 @@
+---
+- name: Deploy Node.js application
+  hosts: "{{ target | default('blue') }}"
+  become: yes
+  vars:
+    app_port: 3000
+    app_dir: /home/ec2-user/myapp
+    environment_color: "{{ target }}"
+
+  tasks:
+    - name: Update system packages
+      yum:
+        name: "*"
+        state: latest
+        update_only: yes
+      become: yes
+
+    - name: Ensure Node.js and npm are installed
+      yum:
+        name:
+          - nodejs
+          - npm
+        state: present
+      become: yes
+
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+
+    - name: Copy application files
+      copy:
+        src: "{{ playbook_dir }}/../app/"
+        dest: "{{ app_dir }}/"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+      when: false  # We'll enable this later when we have GitHub integration
+
+    - name: Create app.js for {{ environment_color }} environment
+      copy:
+        content: |
+          const http = require('http');
+          const os = require('os');
+
+          const server = http.createServer((req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            const hostname = os.hostname();
+            const color = "{{ 'add8e6' if environment_color == 'blue' else '90ee90' }}";
+            const envName = "{{ environment_color|upper }}";
+            const version = "{{ '1.0' if environment_color == 'blue' else '2.0' }}";
+            
+            res.end(`
+              <html>
+                <body style="background-color: #${color}; text-align: center; padding: 50px; font-family: Arial;">
+                  <h1>🚀 ${envName} ENVIRONMENT</h1>
+                  <p><strong>Server:</strong> ${hostname}</p>
+                  <p><strong>Version:</strong> ${version} (${envName})</p>
+                  <p><strong>Time:</strong> ${new Date()}</p>
+                  <hr>
+                  <p style="color: #666;">Deployed by Ansible on {{ ansible_date_time.iso8601 }}</p>
+                </body>
+              </html>
+            `);
+          });
+
+          server.listen({{ app_port }}, () => {
+            console.log('✅ {{ environment_color|upper }} server running on port {{ app_port }}');
+          });
+        dest: "{{ app_dir }}/app.js"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Create package.json
+      copy:
+        content: |
+          {
+            "name": "myapp",
+            "version": "{{ '1.0.0' if environment_color == 'blue' else '2.0.0' }}",
+            "main": "app.js",
+            "scripts": {
+              "start": "node app.js"
+            }
+          }
+        dest: "{{ app_dir }}/package.json"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Install npm dependencies
+      npm:
+        path: "{{ app_dir }}"
+        state: present
+      become: no
+
+    - name: Install PM2 globally
+      npm:
+        name: pm2
+        global: yes
+        state: present
+      become: yes
+
+    - name: Stop existing PM2 process
+      command: pm2 delete {{ environment_color }}-app
+      args:
+        chdir: "{{ app_dir }}"
+      become: no
+      ignore_errors: yes
+
+    - name: Start application with PM2
+      command: pm2 start app.js --name {{ environment_color }}-app
+      args:
+        chdir: "{{ app_dir }}"
+      become: no
+
+    - name: Save PM2 process list
+      command: pm2 save
+      become: no
+
+    - name: Setup PM2 startup script
+      command: pm2 startup systemd -u ec2-user --hp /home/ec2-user
+      become: yes
+      ignore_errors: yes
+
+    - name: Check if application is responding
+      uri:
+        url: "http://localhost:{{ app_port }}"
+        method: GET
+        status_code: 200
+      register: app_check
+      become: no
+
+    - name: Display application URL
+      debug:
+        msg: "✅ {{ environment_color|upper }} app is running at http://{{ ansible_host }}:{{ app_port }}"

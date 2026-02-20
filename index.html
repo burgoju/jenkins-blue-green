@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blue-Green Deployment Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f0f0f0;
+        }
+        .blue {
+            color: blue;
+            font-size: 48px;
+        }
+        .green {
+            color: green;
+            font-size: 48px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="blue">Blue-Green Deployment Demo</h1>
+        <h2>Version: <span id="version">1.0.0</span></h2>
+        <p>Environment: <span id="env" class="blue">BLUE</span></p>
+        <p>Server IP: <span id="ip">Loading...</span></p>
+    </div>
+
+    <script>
+        // Show server IP
+        fetch('http://api.ipify.org/?format=json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ip').textContent = data.ip;
+            });
+    </script>
+</body>
+</html>

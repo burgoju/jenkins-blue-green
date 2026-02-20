@@ -1,0 +1,7 @@
+# Ignore sensitive files
+*.pem
+*.key
+*.log
+.DS_Store
+node_modules/
+secrets/
