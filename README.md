@@ -10,11 +10,11 @@ A production-ready Blue-Green deployment pipeline on AWS EC2 with zero downtime.
 
 
 
-\- \*\*Jenkins Server\*\*: 44.198.187.47 - CI/CD automation
+\- \*\*Jenkins Server\*\*: 34.200.217.133 - CI/CD automation
 
-\- \*\*Blue Environment\*\*: 3.239.169.245:3000 - Current production
+\- \*\*Blue Environment\*\*: 44.213.113.125:3000 - Current production
 
-\- \*\*Green Environment\*\*: 44.199.246.157:3000 - Staging/New version
+\- \*\*Green Environment\*\*: 13.223.242.203:3000 - Staging/New version
 
 
 
@@ -58,9 +58,9 @@ A production-ready Blue-Green deployment pipeline on AWS EC2 with zero downtime.
 
 |------------|---------|-----|
 
-| 🔵 Blue | v1.0 | http://3.239.169.245:3000 |
+| 🔵 Blue | v1.0 | http://44.213.113.125:3000 |
 
-| 🟢 Green | v2.0 | http://44.199.246.157:3000 |
+| 🟢 Green | v2.0 | http://13.223.242.203:3000 |
 
 
 
