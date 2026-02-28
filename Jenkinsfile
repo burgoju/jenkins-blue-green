@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     environment {
-        BLUE_IP = '3.239.169.245'
-        GREEN_IP = '44.199.246.157'
+        BLUE_IP = '44.213.113.125'
+        GREEN_IP = '13.223.242.203'
     }
     
     stages {
