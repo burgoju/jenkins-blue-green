@@ -9,17 +9,16 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code from GitHub'
-                git branch: 'main', url: 'https://github.com/burgoju/jenkins-blue-green.git'
+                git branch: 'main', 
+                    url: 'https://github.com/burgoju/jenkins-blue-green.git'
             }
         }
         
         stage('Test Blue Environment') {
             steps {
                 sh """
-                    echo 'Testing Blue environment...'
-                    curl -s http://${BLUE_IP}:3000 | grep -q "BLUE"
-                    echo '✅ Blue environment is healthy'
+                    curl -s http://${BLUE_IP}:3000 | grep -q "BLUE ENVIRONMENT"
+                    echo "✅ Blue environment is healthy"
                 """
             }
         }
@@ -27,7 +26,6 @@ pipeline {
         stage('Deploy to Green') {
             steps {
                 sh """
-                    echo 'Deploying to Green environment...'
                     cd ansible
                     ansible-playbook -i hosts playbooks/deploy-app.yml -e "target=green"
                 """
@@ -37,10 +35,9 @@ pipeline {
         stage('Verify Green Deployment') {
             steps {
                 sh """
-                    echo 'Waiting for app to start...'
                     sleep 10
-                    curl -s http://${GREEN_IP}:3000 | grep -q "GREEN"
-                    echo '✅ Green deployment verified'
+                    curl -s http://${GREEN_IP}:3000 | grep -q "GREEN ENVIRONMENT"
+                    echo "✅ Green deployment verified"
                 """
             }
         }
@@ -48,9 +45,9 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 sh """
-                    echo 'Running smoke tests...'
+                    # Test if app returns 200 OK
                     curl -f http://${GREEN_IP}:3000
-                    echo '✅ Smoke test passed'
+                    echo "✅ Smoke test passed"
                 """
             }
         }
@@ -58,11 +55,16 @@ pipeline {
         stage('Switch to Green') {
             steps {
                 sh """
-                    echo 'Switching traffic to Green...'
                     cd ansible
                     ./switch.sh green
-                    echo '✅ Switched to GREEN environment'
+                    echo "✅ Switched to GREEN environment"
                 """
+            }
+        }
+        
+        stage('Keep Blue for Rollback') {
+            steps {
+                echo "Blue environment preserved at ${BLUE_IP}:3000 for quick rollback"
             }
         }
     }
@@ -72,7 +74,7 @@ pipeline {
             echo '🎉 Deployment successful! Green is now live'
         }
         failure {
-            echo '❌ Deployment failed! Check the logs above'
+            echo '❌ Deployment failed! Blue is still running'
         }
     }
 }
