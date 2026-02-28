@@ -2,6 +2,7 @@ pipeline {
     agent any
     
     environment {
+        ANSIBLE_HOST_KEY_CHECKING = "False"
         BLUE_IP = '44.213.113.125'
         GREEN_IP = '13.223.242.203'
     }
@@ -45,7 +46,6 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 sh """
-                    # Test if app returns 200 OK
                     curl -f http://${GREEN_IP}:3000
                     echo "✅ Smoke test passed"
                 """
