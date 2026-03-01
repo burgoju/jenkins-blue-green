@@ -3,8 +3,8 @@ pipeline {
     
     environment {
         ANSIBLE_HOST_KEY_CHECKING = "False"
-        BLUE_IP = '44.213.113.125'
-        GREEN_IP = '13.223.242.203'
+        BLUE_IP = '34.201.42.56'
+        GREEN_IP = '98.81.35.70'
     }
     
     stages {
