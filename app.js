@@ -1,4 +1,4 @@
-const http = require('http');
+﻿const http = require('http');
 
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -8,14 +8,14 @@ const server = http.createServer((req, res) => {
   const hostname = os.hostname();
   const color = process.env.COLOR || 'blue';
   
-  res.end(`
+  res.end(
     <!DOCTYPE html>
     <html>
     <head>
       <title>Blue-Green Deployment</title>
       <style>
         body { 
-          background-color: ${color === 'blue' ? '#3498db' : '#2ecc71'};
+          background-color: ;
           color: white;
           font-family: Arial, sans-serif;
           text-align: center;
@@ -34,17 +34,17 @@ const server = http.createServer((req, res) => {
     <body>
       <h1>🚀 Blue-Green Deployment Demo</h1>
       <div class="server-info">
-        <h2>You are on: ${color.toUpperCase()} Server</h2>
-        <p>Server Hostname: ${hostname}</p>
-        <p>Deployment Time: ${new Date().toLocaleString()}</p>
+        <h2>You are on:  Server</h2>
+        <p>Server Hostname: </p>
+        <p>Deployment Time: </p>
         <p>Version: 1.0.0</p>
       </div>
     </body>
     </html>
-  `);
+  );
 });
 
 const PORT = 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${process.env.COLOR || 'blue'} mode`);
+  console.log(Server running on port  in  mode);
 });

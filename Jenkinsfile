@@ -1,9 +1,9 @@
-pipeline {
+﻿pipeline {
     agent any
     
     environment {
-        BLUE_IP = '44.199.199.4'    // Your Blue server IP
-        GREEN_IP = '3.237.180.95'   // Your Green server IP
+        BLUE_IP = '34.201.47.114'    // Your Blue server IP
+        GREEN_IP = '98.86.174.209'   // Your Green server IP
     }
     
     stages {
@@ -29,7 +29,7 @@ pipeline {
             steps {
                 sh '''
                     # Deploy to green environment
-                    ansible-playbook -i ${GREEN_IP}, deploy.yml -e "color=green"
+                    ansible-playbook -i \, deploy.yml -e "color=green"
                 '''
             }
         }
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 sh '''
                     # Test if green server is working
-                    curl -f http://${GREEN_IP}:3000 || exit 1
+                    curl -f http://\:3000 || exit 1
                 '''
             }
         }
