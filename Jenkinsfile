@@ -1,9 +1,9 @@
-﻿pipeline {
+pipeline {
     agent any
     
     environment {
-        BLUE_IP = '34.201.47.114'    // Your Blue server IP
-        GREEN_IP = '98.86.174.209'   // Your Green server IP
+        BLUE_IP = '10.0.7.187'      // Your Blue server private IP
+        GREEN_IP = '10.0.2.43'      // Your Green server private IP
     }
     
     stages {
@@ -29,7 +29,7 @@
             steps {
                 sh '''
                     # Deploy to green environment
-                    ansible-playbook -i \, deploy.yml -e "color=green"
+                    ansible-playbook -i ${GREEN_IP}, deploy.yml -e "color=green" -u ec2-user
                 '''
             }
         }
@@ -38,7 +38,7 @@
             steps {
                 sh '''
                     # Test if green server is working
-                    curl -f http://\:3000 || exit 1
+                    curl -f http://${GREEN_IP}:3000 || exit 1
                 '''
             }
         }
@@ -47,8 +47,6 @@
             steps {
                 input message: 'Switch traffic from Blue to Green?', ok: 'Yes'
                 sh '''
-                    # Here you would update load balancer or DNS
-                    # For demo, we'll just note the switch
                     echo "Traffic switched to Green server"
                 '''
             }
