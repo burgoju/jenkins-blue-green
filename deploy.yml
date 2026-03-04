@@ -1,0 +1,66 @@
+---
+- name: Deploy application
+  hosts: all
+  become: yes
+  vars:
+    color: "{{ color | default('blue') }}"
+  
+  tasks:
+    - name: Install Node.js and npm
+      yum:
+        name:
+          - nodejs
+          - npm
+          - git
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install PM2 globally
+      npm:
+        name: pm2
+        global: yes
+
+    - name: Create app directory
+      file:
+        path: /opt/myapp
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+
+    - name: Copy application files
+      copy:
+        src: ./app.js
+        dest: /opt/myapp/app.js
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+
+    - name: Copy package.json
+      copy:
+        src: ./package.json
+        dest: /opt/myapp/package.json
+        owner: ec2-user
+        group: ec2-user
+
+    - name: Install dependencies
+      npm:
+        path: /opt/myapp
+      become_user: ec2-user
+
+    - name: Set color environment variable
+      lineinfile:
+        path: /etc/environment
+        line: "COLOR={{ color }}"
+        create: yes
+
+    - name: Start application with PM2
+      shell: |
+        cd /opt/myapp
+        COLOR={{ color }} pm2 start app.js --name "myapp-{{ color }}" --update-env
+      become_user: ec2-user
+      environment:
+        COLOR: "{{ color }}"
+
+    - name: Save PM2 process list
+      shell: pm2 save
+      become_user: ec2-user
