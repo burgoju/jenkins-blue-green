@@ -2,13 +2,9 @@
     agent any
     
     environment {
-<<<<<<< HEAD
-        BLUE_IP = '100.54.122.151'    // Your NEW Blue server IP
-        GREEN_IP = '44.197.189.121'   // Your NEW Green server IP
-=======
-        BLUE_IP = '10.0.7.187'      // Your Blue server private IP
-        GREEN_IP = '10.0.2.43'      // Your Green server private IP
->>>>>>> e3f8023f20ba511a59a160e0139f376162da892c
+        // Use PUBLIC IPs, not private IPs!
+        BLUE_IP = '100.54.122.151'    // Your Blue server PUBLIC IP
+        GREEN_IP = '44.197.189.121'   // Your Green server PUBLIC IP
     }
     
     stages {
@@ -33,12 +29,8 @@
         stage('Deploy to Green') {
             steps {
                 sh '''
-                    # Deploy to green environment
-<<<<<<< HEAD
-                    ansible-playbook -i ${GREEN_IP}, deploy.yml -e "color=green"
-=======
+                    # Deploy to green environment using PUBLIC IP
                     ansible-playbook -i ${GREEN_IP}, deploy.yml -e "color=green" -u ec2-user
->>>>>>> e3f8023f20ba511a59a160e0139f376162da892c
                 '''
             }
         }
@@ -46,7 +38,7 @@
         stage('Smoke Test') {
             steps {
                 sh '''
-                    # Test if green server is working
+                    # Test if green server is working using PUBLIC IP
                     curl -f http://${GREEN_IP}:3000 || exit 1
                 '''
             }
